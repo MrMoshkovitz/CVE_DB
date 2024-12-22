@@ -1,0 +1,32 @@
+./
+├── README.md
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── src
+│   ├── App.css
+│   ├── App.js
+│   ├── App.test.js
+│   ├── api.js
+│   ├── components
+│   │   ├── CVEDetails.js
+│   │   └── CVEList.js
+│   ├── index.css
+│   ├── index.js
+│   ├── logo.svg
+│   ├── pages
+│   │   ├── CVEDetailPage.js
+│   │   └── HomePage.js
+│   ├── reportWebVitals.js
+│   └── setupTests.js
+├── tailwind.config.js
+└── tree.txt
+
+5 directories, 25 files
