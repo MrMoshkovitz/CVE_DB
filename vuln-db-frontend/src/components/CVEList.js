@@ -1,3 +1,4 @@
+// src/components/CVEList.js
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAllCVEs } from '../api';
@@ -24,15 +25,38 @@ const CVEList = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">CVE List</h1>
-      <ul>
-        {cves.map((cve) => (
-          <li key={cve._id} className="mb-2">
-            <Link to={`/cves/${cve.cve_id}`} className="text-blue-500 underline">
-              {cve.cve_id} - {cve.vulnerable_package_name} ({cve.vulnerable_package_version_example})
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <table className="table-auto w-full border-collapse border border-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border border-gray-300 px-4 py-2 text-left">CVE ID</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Package</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Version</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cves.map((cve, index) => (
+            <tr
+              key={cve._id}
+              className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+            >
+              <td className="border border-gray-300 px-4 py-2">
+                <Link
+                  to={`/cves/${cve.cve_id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  {cve.cve_id}
+                </Link>
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {cve.vulnerable_package_name}
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {cve.vulnerable_package_version_example}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

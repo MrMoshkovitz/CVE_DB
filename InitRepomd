@@ -1,0 +1,14 @@
+init current repo as git repo
+githubUsername=MrMoshkovitz
+git config --global user.name "MrMoshkovitz"
+git config --global user.email "gal.moshko@gmail.com"
+
+git init
+git add .
+git commit -m "Initial commit - App Added"
+repo_name="CVE_DB"
+
+git branch -M master
+git remote add origin https://github.com/MrMoshkovitz/CVE_DB.git
+git push -u origin main
+
