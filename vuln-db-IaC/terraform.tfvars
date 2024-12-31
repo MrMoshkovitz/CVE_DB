@@ -1,0 +1,6 @@
+gcp_project_id = "sans-gm"
+gcp_region = "us-central1"
+gcp_zone = "us-central1-a"
+vm_tier = "e2-micro"
+os_image = "debian-cloud/debian-12"
+size = "10GB"
