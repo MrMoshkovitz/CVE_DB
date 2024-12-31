@@ -1,2 +1,9 @@
 vuln-db-backend/env/*
 vuln-db-frontend/node_modules/*
+node_modules/*
+*/node_modules/*
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.env
