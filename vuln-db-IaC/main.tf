@@ -97,28 +97,29 @@ resource "google_compute_instance" "vm_instance" {
 
 
     # Create a directory for the JSON file
-    mkdir -p ~/code/CVE_DB/vuln-db-backend/data && sudo chown -R $USER:$USER ~/code/CVE_DB/vuln-db-backend/data
+    mkdir -p ~/Code/CVE_DB/vuln-db-backend/data/db && sudo chown -R $USER:$USER ~/Code/CVE_DB/vuln-db-backend/data/db
     
     # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json)
-    chmod +x ~/code/CVE_DB/vuln-db-backend/app/update_cves.sh
-    (crontab -l 2>/dev/null; echo "0 0 * * * ~/code/CVE_DB/vuln-db-backend/app/update_cves.sh") | crontab -
+    chmod +x ~/Code/CVE_DB/vuln-db-backend/app/update_cves.sh
+    
+    (crontab -l 2>/dev/null; echo "0 0 * * * ~/Code/CVE_DB/vuln-db-backend/app/update_cves.sh") | crontab -
     
     # # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
-    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
+    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/Code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
     
     # # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
-    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
+    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/Code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
     
-    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
+    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/Code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
     
-    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
+    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/Code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
 
     # Pull the latest MongoDB Docker image
     docker pull mongo:latest
 
     
     # Move to vuln-db-backend directory
-    cd ~/code/CVE_DB/vuln-db-backend
+    cd ~/Code/CVE_DB/vuln-db-backend
   
     # Create a virtual environment
     python3.11 -m venv .venv
@@ -140,7 +141,7 @@ resource "google_compute_instance" "vm_instance" {
     # Run the MongoDB container
     docker run -d \
       --name mongodb \
-      -v $(pwd)/data/db:~/code/CVE_DB/vuln-db-backend/data/db \
+      -v $(pwd)/data/db:~/Code/CVE_DB/vuln-db-backend/data/db \
       -p 27017:27017 \
       mongo:latest
 
@@ -148,7 +149,7 @@ resource "google_compute_instance" "vm_instance" {
     sleep 10
 
     # Import the JSON file into MongoDB
-    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
+    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/Code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
 
     # Activate the virtual environment
     source .venv/bin/activate
@@ -166,7 +167,7 @@ resource "google_compute_instance" "vm_instance" {
     tmux detach
 
     # Move to vuln-db-frontend directory
-    cd ~/code/CVE_DB/vuln-db-frontend
+    cd ~/Code/CVE_DB/vuln-db-frontend
 
     # Run the frontend
     tmux new-session -d -s frontend
