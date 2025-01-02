@@ -2,14 +2,16 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from bson.objectid import ObjectId
 from decouple import config
 VM_PUBLIC_IP = config("VM_PUBLIC_IP", default="localhost")
+MONGO_DB_NAME = config("MONGO_DB_NAME", default="vuln_db")
+CVE_COLLECTION_NAME = config("CVE_COLLECTION_NAME", default="cves")
 # Replace with the public IP of your VM and MongoDB port
-MONGO_DETAILS = config("MONGO_DETAILS", default=f"mongodb://{VM_PUBLIC_IP}:27017/vuln_db")
+MONGO_DETAILS = config("MONGO_DETAILS", default=f"mongodb://127.0.0.1:27017/vuln_db")
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 
 # Database and collection configuration
-database = client.vuln_db
-cve_collection = database.get_collection("cves")
+database = client[MONGO_DB_NAME]
+cve_collection = database.get_collection(CVE_COLLECTION_NAME)
 
 def cve_helper(cve) -> dict:
     return {
