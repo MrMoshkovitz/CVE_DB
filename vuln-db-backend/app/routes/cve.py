@@ -37,7 +37,7 @@ async def list_cves(cve: Optional[str] = None):
     try:
         if cve:
             logger.info(f"Fetching specific CVE: {cve}")
-            cve_doc = await Database.cve_collection.find_one({"cve_id": cve})
+            cve_doc = await Database.cve_collection.find_one({"cve_id": cve.upper()})
             if cve_doc is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
