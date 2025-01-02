@@ -8,6 +8,6 @@ export const fetchAllCVEs = async () => {
 };
 
 export const fetchCVEById = async (cve_id) => {
-  const response = await axios.get(`${API_URL}/${cve_id}`);
+  const response = await axios.get(`${API_URL}/?cve=${cve_id}`);
   return response.data;
 };
