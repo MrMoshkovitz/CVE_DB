@@ -10,4 +10,4 @@ terraform.tfstate.backup
 vuln-db-backend/data/db/
 vuln-db-backend/data/db/.gitkeep
 *.pyc
-vuln-db-backend/app/models/__pycache__/cve.cpython-312.pyc
+**/__pycache__/
