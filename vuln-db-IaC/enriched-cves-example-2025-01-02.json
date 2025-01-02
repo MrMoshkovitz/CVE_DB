@@ -1,0 +1,177 @@
+[
+    {
+        "cve_id": "CVE-2024-123456",
+        "vulnerable_package_name": "body-parser",
+        "vulnerable_package_version_example": "<1.20.3",
+        "vulnerable_specific_package_name_single_word": "body-parser",
+        "assumed_programming_language_from_package": "JavaScript",
+        "vuln_functions_import_commands_examples": "const bodyParser = require('body-parser');",
+        "functions_to_be_called_for_exploitability_list": [
+            "bodyParser.urlencoded({ extended: true })"
+        ],
+        "additional_steps_for_attackers": "Crafting malicious payloads that exploit the url encoding vulnerability.",
+        "access_prerequisite_for_attackers": "Ability to send HTTP requests to the server.",
+        "is_access_prerequisite_for_attackers_typical": true,
+        "exploit_applicable_at_sdlc_stage": "Production",
+        "attackers_achievement_concise_title": "Denial of Service",
+        "potential_exploit_scenarios": [
+            "Overloading a web server by sending numerous requests with specially crafted payloads to exhaust resources.",
+            "Disrupting service for legitimate users by making the application unresponsive."
+        ],
+        "potential_data_exfiltration_methods": "Not applicable for denial of service.",
+        "exploit_mitigation_strategies": [
+            "Updating to body-parser version 1.20.3 or later.",
+            "Implementing rate limiting to prevent abuse from excessive requests.",
+            "Monitoring and logging to detect unusual spikes in traffic."
+        ],
+        "exploit_execution_context": "Server-side",
+        "exploit_entry_point": "HTTP request handling",
+        "what_exploit_allows_adversaries": "To render the web service unavailable by overwhelming it with requests.",
+        "vulnerability_affected_by": "Improper handling of URL encoded input.",
+        "exploit_requires_special_input_to_function_or_any_input": "crafted input",
+        "description_to_show_when_exploit_applicable": "This vulnerability allows attackers to cause a denial of service by sending specially crafted payloads that exploit weaknesses in URL encoding handling.",
+        "description_to_show_when_exploit_not_applicable": "If the server is not using a vulnerable version of body-parser or has mitigations like rate limiting, the exploit may not be applicable.",
+        "example_attackers_code_detailed_implementation_steps": "1. Identify a target server using a vulnerable version of body-parser.\n2. Craft a payload that exploits the URL encoding vulnerability.\n3. Use a tool like curl or a script to send multiple requests with the crafted payload to the server.\n4. Monitor the server response to determine if the service becomes unavailable or degraded.",
+        "attackers_code_as_example": "const axios = require('axios');\nconst payload = 'a='.repeat(1000) + '%';\naxios.post('http://target-server.com', payload);\n"
+    },
+    {
+        "cve_id": "CVE-2024-123457",
+        "vulnerable_package_name": "express",
+        "vulnerable_package_version_example": "<4.19.2",
+        "vulnerable_specific_package_name_single_word": "express",
+        "assumed_programming_language_from_package": "JavaScript",
+        "vuln_functions_import_commands_examples": "const express = require('express');",
+        "functions_to_be_called_for_exploitability_list": [
+            "app.use(express.json())"
+        ],
+        "additional_steps_for_attackers": "Crafting malicious payloads that exploit the url encoding vulnerability.",
+        "access_prerequisite_for_attackers": "Ability to send HTTP requests to the server.",
+        "is_access_prerequisite_for_attackers_typical": true,
+        "exploit_applicable_at_sdlc_stage": "Production",
+        "attackers_achievement_concise_title": "Denial of Service",
+        "potential_exploit_scenarios": [
+            "Overloading a web server by sending numerous requests with specially crafted payloads to exhaust resources.",
+            "Disrupting service for legitimate users by making the application unresponsive."
+        ],
+        "potential_data_exfiltration_methods": "Not applicable for denial of service.",
+        "exploit_mitigation_strategies": [
+            "Updating to express version 4.19.2 or later.",
+            "Implementing rate limiting to prevent abuse from excessive requests.",
+            "Monitoring and logging to detect unusual spikes in traffic."
+        ],
+        "exploit_execution_context": "Server-side",
+        "exploit_entry_point": "HTTP request handling",
+        "what_exploit_allows_adversaries": "To render the web service unavailable by overwhelming it with requests.",
+        "vulnerability_affected_by": "Improper handling of URL encoded input.",
+        "exploit_requires_special_input_to_function_or_any_input": "crafted input",
+        "description_to_show_when_exploit_applicable": "This vulnerability allows attackers to cause a denial of service by sending specially crafted payloads that exploit weaknesses in URL encoding handling.",
+        "description_to_show_when_exploit_not_applicable": "If the server is not using a vulnerable version of express or has mitigations like rate limiting, the exploit may not be applicable.",
+        "example_attackers_code_detailed_implementation_steps": "1. Identify a target server using a vulnerable version of express.\n2. Craft a payload that exploits the URL encoding vulnerability.\n3. Use a tool like curl or a script to send multiple requests with the crafted payload to the server.\n4. Monitor the server response to determine if the service becomes unavailable or degraded.",
+        "attackers_code_as_example": "const axios = require('axios');\nconst payload = 'a='.repeat(1000) + '%';\naxios.post('http://target-server.com', payload);\n"
+    },
+    {
+        "cve_id": "CVE-2024-123458",
+        "vulnerable_package_name": "cypress",
+        "vulnerable_package_version_example": "<14.11.0",
+        "vulnerable_specific_package_name_single_word": "cypress",
+        "assumed_programming_language_from_package": "JavaScript",
+        "vuln_functions_import_commands_examples": "const cypress = require('cypress');",
+        "functions_to_be_called_for_exploitability_list": [
+            "cypress.run()"
+        ],
+        "additional_steps_for_attackers": "Crafting malicious payloads that exploit the url encoding vulnerability.",
+        "access_prerequisite_for_attackers": "Ability to send HTTP requests to the server.",
+        "is_access_prerequisite_for_attackers_typical": true,
+        "exploit_applicable_at_sdlc_stage": "Production",
+        "attackers_achievement_concise_title": "Denial of Service",
+        "potential_exploit_scenarios": [
+            "Overloading a web server by sending numerous requests with specially crafted payloads to exhaust resources.",
+            "Disrupting service for legitimate users by making the application unresponsive."
+        ],
+        "potential_data_exfiltration_methods": "Not applicable for denial of service.",
+        "exploit_mitigation_strategies": [
+            "Updating to cypress version 14.11.0 or later.",
+            "Implementing rate limiting to prevent abuse from excessive requests.",
+            "Monitoring and logging to detect unusual spikes in traffic."
+        ],
+        "exploit_execution_context": "Server-side",
+        "exploit_entry_point": "HTTP request handling",
+        "what_exploit_allows_adversaries": "To render the web service unavailable by overwhelming it with requests.",
+        "vulnerability_affected_by": "Improper handling of URL encoded input.",
+        "exploit_requires_special_input_to_function_or_any_input": "crafted input",
+        "description_to_show_when_exploit_applicable": "This vulnerability allows attackers to cause a denial of service by sending specially crafted payloads that exploit weaknesses in URL encoding handling.",
+        "description_to_show_when_exploit_not_applicable": "If the server is not using a vulnerable version of cypress or has mitigations like rate limiting, the exploit may not be applicable.",
+        "example_attackers_code_detailed_implementation_steps": "1. Identify a target server using a vulnerable version of cypress.\n2. Craft a payload that exploits the URL encoding vulnerability.\n3. Use a tool like curl or a script to send multiple requests with the crafted payload to the server.\n4. Monitor the server response to determine if the service becomes unavailable or degraded.",
+        "attackers_code_as_example": "const axios = require('axios');\nconst payload = 'a='.repeat(1000) + '%';\naxios.post('http://target-server.com', payload);\n"
+    },
+    {
+        "cve_id": "CVE-2024-123459",
+        "vulnerable_package_name": "axios",
+        "vulnerable_package_version_example": "<1.7.7",
+        "vulnerable_specific_package_name_single_word": "axios",
+        "assumed_programming_language_from_package": "JavaScript",
+        "vuln_functions_import_commands_examples": "const axios = require('axios');",
+        "functions_to_be_called_for_exploitability_list": [
+            "axios.get()"
+        ],
+        "additional_steps_for_attackers": "Crafting malicious payloads that exploit the url encoding vulnerability.",
+        "access_prerequisite_for_attackers": "Ability to send HTTP requests to the server.",
+        "is_access_prerequisite_for_attackers_typical": true,
+        "exploit_applicable_at_sdlc_stage": "Production",
+        "attackers_achievement_concise_title": "Denial of Service",
+        "potential_exploit_scenarios": [
+            "Overloading a web server by sending numerous requests with specially crafted payloads to exhaust resources.",
+            "Disrupting service for legitimate users by making the application unresponsive."
+        ],
+        "potential_data_exfiltration_methods": "Not applicable for denial of service.",
+        "exploit_mitigation_strategies": [
+            "Updating to axios version 1.7.7 or later.",
+            "Implementing rate limiting to prevent abuse from excessive requests.",
+            "Monitoring and logging to detect unusual spikes in traffic."
+        ],
+        "exploit_execution_context": "Server-side",
+        "exploit_entry_point": "HTTP request handling",
+        "what_exploit_allows_adversaries": "To render the web service unavailable by overwhelming it with requests.",
+        "vulnerability_affected_by": "Improper handling of URL encoded input.",
+        "exploit_requires_special_input_to_function_or_any_input": "crafted input",
+        "description_to_show_when_exploit_applicable": "This vulnerability allows attackers to cause a denial of service by sending specially crafted payloads that exploit weaknesses in URL encoding handling.",
+        "description_to_show_when_exploit_not_applicable": "If the server is not using a vulnerable version of axios or has mitigations like rate limiting, the exploit may not be applicable.",
+        "example_attackers_code_detailed_implementation_steps": "1. Identify a target server using a vulnerable version of axios.\n2. Craft a payload that exploits the URL encoding vulnerability.\n3. Use a tool like curl or a script to send multiple requests with the crafted payload to the server.\n4. Monitor the server response to determine if the service becomes unavailable or degraded.",
+        "attackers_code_as_example": "const axios = require('axios');\nconst payload = 'a='.repeat(1000) + '%';\naxios.post('http://target-server.com', payload);\n"
+    },
+    {
+        "cve_id": "CVE-2024-123460",
+        "vulnerable_package_name": "express",
+        "vulnerable_package_version_example": "<4.19.2",
+        "vulnerable_specific_package_name_single_word": "express",
+        "assumed_programming_language_from_package": "JavaScript",
+        "vuln_functions_import_commands_examples": "const express = require('express');",
+        "functions_to_be_called_for_exploitability_list": [
+            "app.use(express.json())"
+        ],
+        "additional_steps_for_attackers": "Crafting malicious payloads that exploit the url encoding vulnerability.",
+        "access_prerequisite_for_attackers": "Ability to send HTTP requests to the server.",
+        "is_access_prerequisite_for_attackers_typical": true,
+        "exploit_applicable_at_sdlc_stage": "Production",
+        "attackers_achievement_concise_title": "Denial of Service",
+        "potential_exploit_scenarios": [
+            "Overloading a web server by sending numerous requests with specially crafted payloads to exhaust resources.",
+            "Disrupting service for legitimate users by making the application unresponsive."
+        ],
+        "potential_data_exfiltration_methods": "Not applicable for denial of service.",
+        "exploit_mitigation_strategies": [
+            "Updating to express version 4.19.2 or later.",
+            "Implementing rate limiting to prevent abuse from excessive requests.",
+            "Monitoring and logging to detect unusual spikes in traffic."
+        ],
+        "exploit_execution_context": "Server-side",
+        "exploit_entry_point": "HTTP request handling",
+        "what_exploit_allows_adversaries": "To render the web service unavailable by overwhelming it with requests.",
+        "vulnerability_affected_by": "Improper handling of URL encoded input.",
+        "exploit_requires_special_input_to_function_or_any_input": "crafted input",
+        "description_to_show_when_exploit_applicable": "This vulnerability allows attackers to cause a denial of service by sending specially crafted payloads that exploit weaknesses in URL encoding handling.",
+        "description_to_show_when_exploit_not_applicable": "If the server is not using a vulnerable version of express or has mitigations like rate limiting, the exploit may not be applicable.",
+        "example_attackers_code_detailed_implementation_steps": "1. Identify a target server using a vulnerable version of express.\n2. Craft a payload that exploits the URL encoding vulnerability.\n3. Use a tool like curl or a script to send multiple requests with the crafted payload to the server.\n4. Monitor the server response to determine if the service becomes unavailable or degraded.",
+        "attackers_code_as_example": "const axios = require('axios');\nconst payload = 'a='.repeat(1000) + '%';\naxios.post('http://target-server.com', payload);\n"
+    }
+]

@@ -58,9 +58,27 @@ resource "google_compute_instance" "vm_instance" {
     systemctl enable docker
     systemctl start docker
 
-    # Install Node.js and npm using NodeSource
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    # Remove nodejs and npm
+    apt-get remove nodejs npm -y
+
+    # Install nvm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+    # Add nvm to path (or you can just close and reopen your terminal)
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+    # Install the LTS version of Node.js
+    nvm install --lts
+
+    # Verify installation
+    node --version
+    npm --version
+
+    
+    # curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    # sudo apt-get install -y nodejs
 
 
 
@@ -79,25 +97,24 @@ resource "google_compute_instance" "vm_instance" {
 
 
     # Create a directory for the JSON file
-    mkdir -p ~/data
+    mkdir -p ~/code/CVE_DB/vuln-db-backend/data && sudo chown -R $USER:$USER ~/code/CVE_DB/vuln-db-backend/data
+    
+    # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json)
+    chmod +x ~/code/CVE_DB/vuln-db-backend/app/update_cves.sh
+    (crontab -l 2>/dev/null; echo "0 0 * * * ~/code/CVE_DB/vuln-db-backend/app/update_cves.sh") | crontab -
+    
+    # # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
+    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
+    
+    # # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
+    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
+    
+    # (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json") | crontab -
+    
+    # (crontab -l 2>/dev/null; echo "0 0 * * * FIRST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | tail -n1) && gsutil cp \$FIRST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-first.json") | crontab -
 
-    # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-example-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
-    (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-example-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/data/enriched-cves-example.json") | crontab -
     # Pull the latest MongoDB Docker image
     docker pull mongo:latest
-
-    # Run the MongoDB container
-    docker run -d \
-      --name mongodb \
-      -v /data:/data \
-      -p 27017:27017 \
-      mongo:latest
-
-    # Wait for MongoDB to initialize
-    sleep 10
-
-    # Import the JSON file into MongoDB
-    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/data/enriched-cves-example.json
 
     
     # Move to vuln-db-backend directory
@@ -107,8 +124,32 @@ resource "google_compute_instance" "vm_instance" {
     python3.11 -m venv .venv
 
     # Run the backend
-    tmux new -s backend
+    tmux new-session -d -s backend
+    tmux attach -t backend
+
+
+    # Check all the containers for mongodb (including the one that is running and stopped), stop and remove them
+    # Find the container id
     
+    CONTAINER_ID=$(docker ps -a --filter "name=mongodb" -q)
+    # Stop the running container
+    docker stop $CONTAINER_ID
+    # Remove the stopped container
+    docker rm $CONTAINER_ID
+
+    # Run the MongoDB container
+    docker run -d \
+      --name mongodb \
+      -v $(pwd)/data:~/code/CVE_DB/vuln-db-backend/data \
+      -p 27017:27017 \
+      mongo:latest
+
+    # Wait for MongoDB to initialize
+    sleep 10
+
+    # Import the JSON file into MongoDB
+    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json
+
     # Activate the virtual environment
     source .venv/bin/activate
     
@@ -128,7 +169,8 @@ resource "google_compute_instance" "vm_instance" {
     cd ~/code/CVE_DB/vuln-db-frontend
 
     # Run the frontend
-    tmux new -s frontend
+    tmux new-session -d -s frontend
+    tmux attach -t frontend
     
     # Install dependencies
     npm install
