@@ -8,11 +8,30 @@ sudo mkdir -p ~/Code/CVE_DB/vuln-db-backend/data/db
 sudo chown -R $USER:$USER ~/Code/CVE_DB/vuln-db-backend/data/db
 sudo chmod -R 755 ~/Code/CVE_DB/vuln-db-backend/data/db
 
+
+
+
 # Check if MongoDB container exists but is not running
+# If it is not running, start it
 if sudo docker ps -a | grep -q mongodb && ! sudo docker ps | grep -q mongodb; then
     echo "Removing stopped MongoDB container..."
-    sudo docker rm mongodb
+    sudo docker start mongodb
 fi
+
+# If its not exists, create it
+if ! sudo docker ps -a | grep -q mongodb; then
+    echo "Creating new MongoDB container..."
+    sudo docker pull mongo:latest
+    sudo docker run -d --name mongodb \
+        -v $(pwd)/data/db:/data/db \
+        -p 27017:27017 \
+        mongo:latest
+fi
+
+# Wait for MongoDB to start
+echo "Waiting for MongoDB to start..."
+sleep 10
+
 
 # Check if MongoDB container is running
 if ! sudo docker ps | grep -q mongodb; then
