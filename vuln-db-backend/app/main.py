@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.cve import router as cve_router
+from app.database import VM_PUBLIC_IP
 
 app = FastAPI(
     title="CVE Database API",
