@@ -51,6 +51,9 @@ resource "google_compute_instance" "vm_instance" {
     apt-get update
     apt-get install -y google-cloud-sdk
 
+    # Install python3.11-venv
+    apt-get install -y python3.11-venv tmux git 
+
     # Enable and start Docker service
     systemctl enable docker
     systemctl start docker
@@ -95,8 +98,47 @@ resource "google_compute_instance" "vm_instance" {
 
     # Import the JSON file into MongoDB
     docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/data/enriched-cves-example.json
+
+    
+    # Move to vuln-db-backend directory
+    cd ~/code/CVE_DB/vuln-db-backend
+  
+    # Create a virtual environment
+    python3.11 -m venv .venv
+
+    # Run the backend
+    tmux new -s backend
+    
+    # Activate the virtual environment
+    source .venv/bin/activate
+    
+    # Upgrade pip
+    pip install --upgrade pip
+
+    # Install requirements
+    pip install -r requirements.txt
+
+    # Run the backend
+    python -m app.main
+
+    # Detach from the session
+    tmux detach
+
+    # Move to vuln-db-frontend directory
+    cd ~/code/CVE_DB/vuln-db-frontend
+
+    
+
+
+
+    
+
+
+
+
+
+
   EOF
 
 }   
-
 
