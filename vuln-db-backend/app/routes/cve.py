@@ -7,7 +7,8 @@ from app.models.cve import CVEModel
 from app.database import Database, cve_helper
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+# Initialize router with explicit handling of trailing slashes
+router = APIRouter(prefix="", redirect_slashes=False)
 
 # Create a new CVE entry
 @router.post("/", response_description="Add new CVE", response_model=CVEModel)
@@ -29,6 +30,8 @@ async def create_cve(cve: CVEModel = Body(...)):
             detail=f"Failed to create CVE: {str(e)}"
         )
 
+# Handle both /cves and /cves/
+@router.get("", response_description="List all CVEs or get CVE by ID", response_model=Union[List[CVEModel], CVEModel])
 @router.get("/", response_description="List all CVEs or get CVE by ID", response_model=Union[List[CVEModel], CVEModel])
 async def list_cves(cve: Optional[str] = None):
     try:
