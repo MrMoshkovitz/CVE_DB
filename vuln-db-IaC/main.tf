@@ -100,6 +100,7 @@ resource "google_compute_instance" "vm_instance" {
     mkdir -p ~/Code/CVE_DB/vuln-db-backend/data/db && sudo chown -R $USER:$USER ~/Code/CVE_DB/vuln-db-backend/data/db
     
     # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-YYYY-MM-DD.json)
+    sudo usermod -aG docker $USER
     chmod +x ~/Code/CVE_DB/vuln-db-backend/app/update_cves.sh
     
     (crontab -l 2>/dev/null; echo "0 0 * * * ~/Code/CVE_DB/vuln-db-backend/app/update_cves.sh") | crontab -
