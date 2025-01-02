@@ -1,6 +1,6 @@
 #? Repo Terminal 
 # cd ~/Code/Private/CVE_DB/
-cd ~/Code/CVE_DB/
+cd ~/Code/CVE_DB/vuln-db-backend
 git fetch origin && git reset --hard origin/master && git pull
 
 #* Testing Backend
