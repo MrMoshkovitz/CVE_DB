@@ -11,21 +11,42 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-VM_PUBLIC_IP = settings.VM_PUBLIC_IP
-MONGO_DB_NAME = settings.MONGO_DB_NAME
-CVE_COLLECTION_NAME = settings.CVE_COLLECTION_NAME
-# Replace with the public IP of your VM and MongoDB port
-MONGO_DETAILS = settings.MONGO_DETAILS
+class Database:
+    client: AsyncIOMotorClient = None
+    database = None
+    cve_collection = None
 
-# Database connection with error handling
-try:
-    client = AsyncIOMotorClient(MONGO_DETAILS)
-    database = client[MONGO_DB_NAME]
-    cve_collection = database.get_collection(CVE_COLLECTION_NAME)
-    logger.info("Successfully connected to MongoDB")
-except Exception as e:
-    logger.error(f"Failed to connect to MongoDB: {e}")
-    raise
+    @classmethod
+    async def connect_db(cls):
+        try:
+            cls.client = AsyncIOMotorClient(settings.MONGO_DETAILS)
+            cls.database = cls.client[settings.MONGO_DB_NAME]
+            cls.cve_collection = cls.database[settings.CVE_COLLECTION_NAME]
+            await cls.init_db()
+            logger.info("Successfully connected to MongoDB")
+        except Exception as e:
+            logger.error(f"Failed to connect to MongoDB: {e}")
+            raise
+
+    @classmethod
+    async def close_db(cls):
+        if cls.client:
+            cls.client.close()
+            logger.info("Database connection closed")
+
+    @classmethod
+    async def init_db(cls):
+        try:
+            await cls.client.server_info()
+            logger.info("Database connection verified")
+            
+            await cls.cve_collection.create_index("cve_id", unique=True)
+            await cls.cve_collection.create_index("vulnerable_package_name")
+            await cls.cve_collection.create_index("assumed_programming_language_from_package")
+            logger.info("Database indexes created successfully")
+        except Exception as e:
+            logger.error(f"Database initialization failed: {e}")
+            raise
 
 # Helper function to format CVE data
 def cve_helper(cve) -> dict:
@@ -70,19 +91,4 @@ def cve_helper(cve) -> dict:
             detail=f"Error processing CVE document: {str(e)}"
         )
 
-# Database initialization function
-async def init_db():
-    try:
-        # Test the connection
-        await client.server_info()
-        logger.info("Database connection verified")
-        
-        # Create indexes
-        await cve_collection.create_index("cve_id", unique=True)
-        await cve_collection.create_index("vulnerable_package_name")
-        await cve_collection.create_index("assumed_programming_language_from_package")
-        logger.info("Database indexes created successfully")
-        
-    except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
-        raise
+__all__ = ['Database']

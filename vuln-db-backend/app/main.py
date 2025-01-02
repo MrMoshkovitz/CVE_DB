@@ -1,22 +1,33 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.cve import router as CVERouter
-from app.database import client
+from app.database import Database
 from app.middleware.error_handler import ErrorHandlerMiddleware
 from app.middleware.rate_limiter import RateLimitMiddleware
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await Database.connect_db()
+    yield
+    # Shutdown
+    await Database.close_db()
 
 app = FastAPI(
     title="CVE Database API",
     description="An API to manage and retrieve CVE information.",
     version="1.0.0",
+    lifespan=lifespan,
+    redirect_slashes=False
 )
 
 # Add middlewares
 app.add_middleware(
     RateLimitMiddleware,
-    rate_limit=100,  # requests
-    time_window=60   # seconds
+    rate_limit=100,
+    time_window=60
 )
 
 app.add_middleware(
@@ -39,7 +50,7 @@ async def read_root():
 @app.get("/health", tags=["Health"])
 async def health_check():
     try:
-        await client.server_info()
+        await Database.client.server_info()
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         raise HTTPException(

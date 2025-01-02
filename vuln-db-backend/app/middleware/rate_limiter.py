@@ -3,20 +3,18 @@ from fastapi.responses import JSONResponse
 import time
 from collections import defaultdict
 import logging
+from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 
-class RateLimitMiddleware:
-    def __init__(
-        self,
-        rate_limit: int = 100,  # requests
-        time_window: int = 60    # seconds
-    ):
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, rate_limit: int = 100, time_window: int = 60):
+        super().__init__(app)
         self.rate_limit = rate_limit
         self.time_window = time_window
-        self.requests = defaultdict(list)  # IP: [timestamp1, timestamp2, ...]
+        self.requests = defaultdict(list)
 
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         # Get client IP
         client_ip = request.client.host
         

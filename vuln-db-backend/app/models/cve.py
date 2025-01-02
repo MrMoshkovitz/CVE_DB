@@ -3,9 +3,9 @@ from typing import List, Optional
     
 class CVEModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
-    cve_id: str = Field(pattern=r'^CVE-\d{4}-\d+$')
+    cve_id: str
     vulnerable_package_name: str
-    vulnerable_package_version_example: str = Field(min_length=1)
+    vulnerable_package_version_example: str
     vulnerable_specific_package_name_single_word: str
     assumed_programming_language_from_package: str
     vuln_functions_import_commands_examples: str
