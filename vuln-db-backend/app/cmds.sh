@@ -1,3 +1,44 @@
+#? Repo Terminal 
+# cd ~/Code/Private/CVE_DB/
+cd ~/Code/CVE_DB/
+git fetch origin && git reset --hard origin/master && git pull
+
+#* Testing Backend
+docker exec -it mongodb mongosh
+use vuln_db
+db.cves.count()
+
+
+curl http://localhost:8000 # 200 - Result OK
+curl http://localhost:8000/health # 200 - Result OK
+curl http://localhost:8000/cves # 200 - Result Not good - Empty
+curl http://localhost:8000/cves/ # 200 - Result Not good - Empty
+
+
+
+#! Testing Frontend
+curl http://35.194.17.10:8000/
+curl http://35.194.17.10:8000/health
+curl http://35.194.17.10:8000/cves
+curl http://35.194.17.10:8000/cves/
+curl http://35.194.17.10:8000/cves/?cve=CVE-2024-123456
+curl http://35.194.17.10:8000/cves/?cve=cve-2024-123456
+
+
+curl http://localhost:8000/cves/?cve=CVE-2024-123456
+curl http://localhost:8000/cves/?cve=cve-2024-123456
+
+#* Backend Terminal
+cd ~/Code/CVE_DB/vuln-db-backend
+tmux new-session -d -s backend
+tmux attach -t backend
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m app.main
+tmux detach
+
+
+
 # https://michaelcurrin.github.io/code-cookbook/recipes/artificial-intelligence/llm.html
 
 # Remove existing known hosts and SSH keys
@@ -31,10 +72,25 @@ git fetch origin && git reset --hard origin/master && git pull
 
 
 tmux kill-session -t backend
-tmux kill-session -t frontend
+cd ~/code/CVE_DB/vuln-db-backend
 tmux new-session -d -s backend
-tmux new-session -d -s frontend
 tmux attach -t backend
+source .venv/bin/activate
+source .env
+python -m app.main
+tmux detach
+
+curl http://localhost:8000
+curl http://localhost:8000/health
+curl http://localhost:8000/cves
+curl http://localhost:8000/cves/
+curl http://localhost:8000/cves/?cve=CVE-2024-123456
+curl http://localhost:8000/cves/?cve=cve-2024-123456
+
+
+tmux kill-session -t frontend
+cd ~/code/CVE_DB/vuln-db-frontend
+tmux new-session -d -s frontend
 tmux attach -t frontend
 
 Ctrl+b, then d to detach from the session
@@ -94,3 +150,17 @@ gsutil cp $FIRST_FILE ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-first.jso
 # > Add New Custom Docs
 #  @Code - for code snippets
 #  @Docs - for documentation
+
+
+
+
+
+2
+3
+4
+5
+## source it from ~/.bashrc or ~/.bash_profile ##
+echo "source /etc/profile.d/bash_completion.sh" >> ~/.bashrc
+ 
+## Another example Check and load it from ~/.bashrc or ~/.bash_profile ##
+grep -wq '^source /etc/profile.d/bash_completion.sh' ~/.bashrc || echo 'source /etc/profile.d/bash_completion.sh'>>~/.bashrc
