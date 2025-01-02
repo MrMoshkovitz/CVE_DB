@@ -16,13 +16,22 @@ async def create_cve(cve: CVEModel = Body(...)):
     created_cve = await cve_collection.find_one({"_id": new_cve.inserted_id})
     return cve_helper(created_cve)
 
-# Retrieve all CVE entries
 @router.get("/", response_description="List all CVEs", response_model=List[CVEModel])
 async def list_cves():
-    cves = []
-    async for cve in cve_collection.find():
-        cves.append(cve_helper(cve))
-    return cves
+    try:
+        print("Fetching CVEs from database...")  # Debugging line
+        cves = []
+        async for cve in cve_collection.find():
+            try:
+                print("CVE document:", cve)  # Debugging line
+                cves.append(cve_helper(cve))
+            except Exception as e:
+                print(f"Error processing CVE: {e}")  # Debugging line
+                continue
+        return cves
+    except Exception as e:
+        print(f"Error in list_cves: {e}")  # Debugging line
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Retrieve a single CVE entry by CVE ID
 @router.get("/{cve_id}", response_description="Get a single CVE", response_model=CVEModel)

@@ -7,3 +7,4 @@ node_modules/*
 terraform.tfstate
 terraform.tfstate.backup
 .env
+vuln-db-backend/app/cmds.sh
