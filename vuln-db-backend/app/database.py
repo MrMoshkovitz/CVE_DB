@@ -1,23 +1,37 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson.objectid import ObjectId
-from decouple import config
-VM_PUBLIC_IP = config("VM_PUBLIC_IP", default="localhost")
-MONGO_DB_NAME = config("MONGO_DB_NAME", default="vuln_db")
-CVE_COLLECTION_NAME = config("CVE_COLLECTION_NAME", default="cves")
+from app.config import settings
+import logging
+from fastapi import HTTPException, status
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+VM_PUBLIC_IP = settings.VM_PUBLIC_IP
+MONGO_DB_NAME = settings.MONGO_DB_NAME
+CVE_COLLECTION_NAME = settings.CVE_COLLECTION_NAME
 # Replace with the public IP of your VM and MongoDB port
-MONGO_DETAILS = config("MONGO_DETAILS", default=f"mongodb://127.0.0.1:27017/vuln_db")
+MONGO_DETAILS = settings.MONGO_DETAILS
 
-client = AsyncIOMotorClient(MONGO_DETAILS)
+# Database connection with error handling
+try:
+    client = AsyncIOMotorClient(MONGO_DETAILS)
+    database = client[MONGO_DB_NAME]
+    cve_collection = database.get_collection(CVE_COLLECTION_NAME)
+    logger.info("Successfully connected to MongoDB")
+except Exception as e:
+    logger.error(f"Failed to connect to MongoDB: {e}")
+    raise
 
-# Database and collection configuration
-database = client[MONGO_DB_NAME]
-cve_collection = database.get_collection(CVE_COLLECTION_NAME)
-
+# Helper function to format CVE data
 def cve_helper(cve) -> dict:
-    print("Processing CVE:", cve)  # Debugging line
     try:
         return {
-            "_id": str(cve["_id"]),
+            "id": str(cve["_id"]),
             "cve_id": cve["cve_id"],
             "vulnerable_package_name": cve["vulnerable_package_name"],
             "vulnerable_package_version_example": cve["vulnerable_package_version_example"],
@@ -43,6 +57,32 @@ def cve_helper(cve) -> dict:
             "example_attackers_code_detailed_implementation_steps": cve["example_attackers_code_detailed_implementation_steps"],
             "attackers_code_as_example": cve["attackers_code_as_example"]
             }
+    except KeyError as e:
+        logger.error(f"Missing required field in CVE document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Invalid CVE document structure: missing field {str(e)}"
+        )
     except Exception as e:
-        print(f"Error in cve_helper: {e}")
-        raise e
+        logger.error(f"Error processing CVE document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing CVE document: {str(e)}"
+        )
+
+# Database initialization function
+async def init_db():
+    try:
+        # Test the connection
+        await client.server_info()
+        logger.info("Database connection verified")
+        
+        # Create indexes
+        await cve_collection.create_index("cve_id", unique=True)
+        await cve_collection.create_index("vulnerable_package_name")
+        await cve_collection.create_index("assumed_programming_language_from_package")
+        logger.info("Database indexes created successfully")
+        
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        raise

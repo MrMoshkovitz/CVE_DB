@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
-
+    
 class CVEModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
-    cve_id: str
+    cve_id: str = Field(pattern=r'^CVE-\d{4}-\d+$')
     vulnerable_package_name: str
-    vulnerable_package_version_example: str
+    vulnerable_package_version_example: str = Field(min_length=1)
     vulnerable_specific_package_name_single_word: str
     assumed_programming_language_from_package: str
     vuln_functions_import_commands_examples: str
@@ -27,6 +27,7 @@ class CVEModel(BaseModel):
     description_to_show_when_exploit_not_applicable: str
     example_attackers_code_detailed_implementation_steps: str
     attackers_code_as_example: str
+
 
     class Config:
         populate_by_name = True
@@ -65,3 +66,9 @@ class CVEModel(BaseModel):
                 "attackers_code_as_example": "import requests\npayload = {'data': 'malicious'}\nrequests.post('http://target-server.com', data=payload)"
             }
         }
+
+    @field_validator('cve_id')
+    def validate_cve_id(cls, v: str) -> str:
+        if not v.startswith('CVE-'):
+            raise ValueError('CVE ID must start with "CVE-"')
+        return v

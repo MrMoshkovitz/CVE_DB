@@ -1,45 +1,74 @@
 from fastapi import APIRouter, HTTPException, Body, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from bson import ObjectId
+import logging
 
 from app.models.cve import CVEModel
 from app.database import cve_collection, cve_helper
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Create a new CVE entry
 @router.post("/", response_description="Add new CVE", response_model=CVEModel)
 async def create_cve(cve: CVEModel = Body(...)):
-    cve = jsonable_encoder(cve)
-    new_cve = await cve_collection.insert_one(cve)
-    created_cve = await cve_collection.find_one({"_id": new_cve.inserted_id})
-    return cve_helper(created_cve)
+    try:
+        cve = jsonable_encoder(cve)
+        new_cve = await cve_collection.insert_one(cve)
+        created_cve = await cve_collection.find_one({"_id": new_cve.inserted_id})
+        if created_cve is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Created CVE not found"
+            )
+        return cve_helper(created_cve)
+    except Exception as e:
+        logger.error(f"Error creating CVE: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create CVE: {str(e)}"
+        )
 
 @router.get("/", response_description="List all CVEs", response_model=List[CVEModel])
 async def list_cves():
     try:
-        print("Fetching CVEs from database...")  # Debugging line
+        logger.info("Fetching CVEs from database...")
         cves = []
         async for cve in cve_collection.find():
             try:
-                print("CVE document:", cve)  # Debugging line
+                logger.debug(f"Processing CVE document: {cve}")
                 cves.append(cve_helper(cve))
             except Exception as e:
-                print(f"Error processing CVE: {e}")  # Debugging line
-                continue
+                logger.error(f"Error processing CVE: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Error processing CVE: {str(e)}"
+                )
         return cves
     except Exception as e:
-        print(f"Error in list_cves: {e}")  # Debugging line
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in list_cves: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve CVEs: {str(e)}"
+        )
 
 # Retrieve a single CVE entry by CVE ID
-@router.get("/{cve_id}", response_description="Get a single CVE", response_model=CVEModel)
+@router.get("/{cve_id}", response_description="Get CVE by ID", response_model=CVEModel)
 async def get_cve(cve_id: str):
-    cve = await cve_collection.find_one({"cve_id": cve_id})
-    if cve is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"CVE {cve_id} not found")
-    return cve_helper(cve)
+    try:
+        cve = await cve_collection.find_one({"cve_id": cve_id})
+        if cve is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"CVE with ID {cve_id} not found"
+            )
+        return cve_helper(cve)
+    except Exception as e:
+        logger.error(f"Error retrieving CVE {cve_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve CVE: {str(e)}"
+        )
 
 # Update a CVE entry by CVE ID
 @router.put("/{cve_id}", response_description="Update a CVE", response_model=CVEModel)
