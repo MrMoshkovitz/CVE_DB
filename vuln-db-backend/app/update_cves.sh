@@ -26,7 +26,7 @@ if [ -n "$(sudo docker ps -a --filter "name=mongodb" --filter "status=exited" --
 fi
 
 # If its not exists, create it
-if ! sudo docker ps -a --filter "name=mongodb"; then
+if [ -z "$(sudo docker ps -a --filter "name=mongodb" --format '{{.Names}}')" ]; then
     echo "Creating new MongoDB container..."
     sudo docker pull mongo:latest
     sudo docker run -d --name mongodb \
@@ -39,20 +39,6 @@ fi
 echo "Waiting for MongoDB to start..."
 sleep 10
 
-
-# Check if MongoDB container is running
-if ! sudo docker ps | grep -q mongodb; then
-    echo "MongoDB container not found. Creating new container..."
-    sudo docker pull mongo:latest
-    sudo docker run -d --name mongodb \
-        -v $(pwd)/data/db:/data/db \
-        -p 27017:27017 \
-        mongo:latest
-    
-    # Wait for MongoDB to start
-    echo "Waiting for MongoDB to start..."
-    sleep 10
-fi
 
 # Get and copy the latest file
 LATEST_FILE=$(gsutil ls gs://cve-storage-bucket/enriched-cves-*.json | sort -r | head -n1)
