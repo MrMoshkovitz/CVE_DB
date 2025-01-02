@@ -28,6 +28,12 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   metadata_startup_script = <<-EOF
+    
+# Install curl if not already installed
+
+
+
+
     #!/bin/bash
     # Update and install necessary packages
     apt-get update
@@ -48,6 +54,10 @@ resource "google_compute_instance" "vm_instance" {
     # Enable and start Docker service
     systemctl enable docker
     systemctl start docker
+
+    # Install Node.js and npm using NodeSource
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
 
 
