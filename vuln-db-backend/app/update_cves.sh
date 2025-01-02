@@ -1,3 +1,8 @@
+sudo docker ps -a --filter "name=mongodb" --format "{{.Status}}"
+sudo docker ps --filter "name=mongodb" --filter "status=running"
+
+
+
 #!/bin/bash
 
 # Set the Google Cloud credentials
@@ -12,14 +17,16 @@ sudo chmod -R 755 ~/Code/CVE_DB/vuln-db-backend/data/db
 
 
 # Check if MongoDB container exists but is not running
-# If it is not running, start it
-if sudo docker ps -a | grep -q mongodb && ! sudo docker ps | grep -q mongodb; then
-    echo "Removing stopped MongoDB container..."
+# sudo docker ps -a --filter "name=mongodb" --filter "status=exited" | grep mongodb
+# sudo docker ps -a --filter "name=mongodb" --filter "status=running" | grep mongodb
+
+if [ -n "$(sudo docker ps -a --filter "name=mongodb" --filter "status=exited" --format '{{.Names}}')" ]; then
+    echo "MongoDB container exists but is not running. Starting it..."
     sudo docker start mongodb
 fi
 
 # If its not exists, create it
-if ! sudo docker ps -a | grep -q mongodb; then
+if ! sudo docker ps -a --filter "name=mongodb"; then
     echo "Creating new MongoDB container..."
     sudo docker pull mongo:latest
     sudo docker run -d --name mongodb \
