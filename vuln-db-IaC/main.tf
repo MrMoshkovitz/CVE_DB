@@ -127,16 +127,24 @@ resource "google_compute_instance" "vm_instance" {
     # Move to vuln-db-frontend directory
     cd ~/code/CVE_DB/vuln-db-frontend
 
+    # Run the frontend
+    tmux new -s frontend
     
+    # Install dependencies
+    npm install
 
+    # Run the frontend
+    # npm run dev
+    # npm run build 
 
+    # Install server globally
+    sudo npm install -g serve -y
 
-    
+    # Serve the frontend app on port 80
+    serve -s build -p 3000
 
-
-
-
-
+    # Detach from the session
+    tmux detach
 
   EOF
 
