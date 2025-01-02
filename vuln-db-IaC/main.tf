@@ -30,29 +30,63 @@ resource "google_compute_instance" "vm_instance" {
   metadata_startup_script = <<-EOF
     #!/bin/bash
     # Update and install necessary packages
-    sudo apt update -y
-    sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+    apt-get update
+    apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
     # Install Docker
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-    sudo apt update
-    sudo apt install -y docker-ce
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+    apt-get update
+    apt-get install -y docker-ce
 
     # Install Google Cloud SDK
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-    sudo apt update 
-    sudo apt install -y google-cloud-sdk
-
-    # Install MongoDB
-    sudo apt install -y mongodb
-
-    # Add Docker to Docker group
-    sudo usermod -aG docker $USER
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+    apt-get update
+    apt-get install -y google-cloud-sdk
 
     # Enable and start Docker service
-    sudo systemctl enable docker
-    sudo systemctl start docker
+    systemctl enable docker
+    systemctl start docker
+
+
+
+    # Create directory for service account key
+    mkdir -p ~/.keys
+
+    # Move the service account key to the appropriate directory
+    mv /tmp/cve-db-sa.json ~/.keys/cve-db-sa.json
+
+    # Set environment variable for Google Application Credentials
+    export GOOGLE_APPLICATION_CREDENTIALS=~/.keys/cve-db-sa.json
+
+    # Authenticate with GCP
+    gcloud auth activate-service-account --key-file=~/.keys/cve-db-sa.json
+    gcloud config set project ${var.project_id}
+
+
+    # Create a directory for the JSON file
+    mkdir -p ~/data
+
+    # Set up cron job to download the JSON file daily at midnight (FILE NAME = enriched-cves-example-YYYY-MM-DD.json - SORT AND DOWNLOAD THE LATEST FILE)
+    (crontab -l 2>/dev/null; echo "0 0 * * * LATEST_FILE=\$(gsutil ls gs://cve-storage-bucket/enriched-cves-example-*.json | sort -r | head -n1) && gsutil cp \$LATEST_FILE ~/data/enriched-cves-example.json") | crontab -
+    # Pull the latest MongoDB Docker image
+    docker pull mongo:latest
+
+    # Run the MongoDB container
+    docker run -d \
+      --name mongodb \
+      -v /data:/data \
+      -p 27017:27017 \
+      mongo:latest
+
+    # Wait for MongoDB to initialize
+    sleep 10
+
+    # Import the JSON file into MongoDB
+    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/data/enriched-cves-example.json
   EOF
+
 }   
+
+

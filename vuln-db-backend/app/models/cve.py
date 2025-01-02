@@ -29,8 +29,8 @@ class CVEModel(BaseModel):
     attackers_code_as_example: str
 
     class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+        populate_by_name = True
+        json_schema_extra = {
             "example": {
                 "cve_id": "CVE-2024-123456",
                 "vulnerable_package_name": "example-package",
