@@ -8,21 +8,24 @@ sudo mkdir -p ~/Code/CVE_DB/vuln-db-backend/data/db
 sudo chown -R $USER:$USER ~/Code/CVE_DB/vuln-db-backend/data/db
 sudo chmod -R 755 ~/Code/CVE_DB/vuln-db-backend/data/db
 
+# Check if MongoDB container exists but is not running
+if sudo docker ps -a | grep -q mongodb && ! sudo docker ps | grep -q mongodb; then
+    echo "Removing stopped MongoDB container..."
+    sudo docker rm mongodb
+fi
+
 # Check if MongoDB container is running
 if ! sudo docker ps | grep -q mongodb; then
-    echo "$(date): Error - MongoDB container is not running" >> ~/Code/CVE_DB/vuln-db-backend/data/db/update.log
-    echo "Starting MongoDB container..."
-    sudo docker start mongodb
+    echo "MongoDB container not found. Creating new container..."
+    sudo docker pull mongo:latest
+    sudo docker run -d --name mongodb \
+        -v $(pwd)/data/db:/data/db \
+        -p 27017:27017 \
+        mongo:latest
+    
+    # Wait for MongoDB to start
+    echo "Waiting for MongoDB to start..."
     sleep 10
-    if ! sudo docker ps | grep -q mongodb; then
-        echo "Error - MongoDB container is not running" >> ~/Code/CVE_DB/vuln-db-backend/data/db/update.log
-        sudo docker pull mongo:latest
-        sudo docker run -d --name mongodb \
-            -v $(pwd)/data/db:/data/db \
-            -p 27017:27017 \
-            --user "$(id -u):$(id -g)" \
-            mongo:latest
-    fi
 fi
 
 # Get and copy the latest file
@@ -38,8 +41,6 @@ if [ -f ~/Code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json ]; then
     echo "File exists"
     # Update MongoDB with the latest CVEs
     sudo docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --drop --file /data/db/enriched-cves-latest.json
-
-    # Log the execution with proper permissions
     echo "$(date): Updated CVE files and MongoDB database" >> ~/Code/CVE_DB/vuln-db-backend/data/db/update.log
 else
     echo "File does not exist. Importing example file"
