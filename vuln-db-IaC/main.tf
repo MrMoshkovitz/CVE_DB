@@ -140,7 +140,7 @@ resource "google_compute_instance" "vm_instance" {
     # Run the MongoDB container
     docker run -d \
       --name mongodb \
-      -v $(pwd)/data:~/code/CVE_DB/vuln-db-backend/data \
+      -v $(pwd)/data/db:~/code/CVE_DB/vuln-db-backend/data/db \
       -p 27017:27017 \
       mongo:latest
 
@@ -148,7 +148,7 @@ resource "google_compute_instance" "vm_instance" {
     sleep 10
 
     # Import the JSON file into MongoDB
-    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/code/CVE_DB/vuln-db-backend/data/enriched-cves-latest.json
+    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
 
     # Activate the virtual environment
     source .venv/bin/activate

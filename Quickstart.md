@@ -4,11 +4,46 @@
 
 ## CVEs Data
 ```bash
-LOCAL_DATA_DIR=/Users/galmoshkovitz/Code/Private/CVE-DB/vuln-db-backend/data
+LOCAL_DATA_DIR=/Users/galmoshkovitz/Code/Private/CVE-DB/vuln-db-backend/data/db
 cp enriched-cves-example.json $LOCAL_DATA_DIR
 ```
 
-### MongoDB Backend Container:
+## Create necessary directory structure
+```bash
+mkdir -p ~/code/CVE_DB/vuln-db-backend/data/db
+```
+
+## Set proper permissions
+```bash
+sudo chown -R $USER:$USER ~/code/CVE_DB/vuln-db-backend/data/db
+```
+
+## Create .gitkeep to preserve directory structure
+```bash
+touch ~/code/CVE_DB/vuln-db-backend/data/db/.gitkeep
+echo "Directory structure created successfully"
+```
+
+## Update .gitignore to exclude data files but keep directory structure
+
+```bash
+echo "vuln-db-backend/env/
+vuln-db-frontend/node_modules/
+node_modules/
+/node_modules/
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.env
+vuln-db-backend/app/cmds.sh
+vuln-db-backend/data/db/
+!vuln-db-backend/data/db/.gitkeep" >> .gitignore
+```
+
+
+
+## MongoDB Backend Container:
 ```bash
 docker pull mongo
 docker run -d \
