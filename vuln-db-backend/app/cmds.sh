@@ -164,3 +164,22 @@ echo "source /etc/profile.d/bash_completion.sh" >> ~/.bashrc
  
 ## Another example Check and load it from ~/.bashrc or ~/.bash_profile ##
 grep -wq '^source /etc/profile.d/bash_completion.sh' ~/.bashrc || echo 'source /etc/profile.d/bash_completion.sh'>>~/.bashrc
+
+
+
+
+
+# # docker exec mongodb ls -l /data/db/enriched-cves-latest.json
+# # To find enriched-cves-example.json file in all the container
+
+
+gcloud compute scp --zone=us-central1-a ~/Code/Private/CVE-DB/vuln-db-IaC/enriched-cves-example.json cve-vm:data/db/
+docker cp ~/data/db/enriched-cves-example.json mongodb:/data/db/
+docker exec -it mongodb ls -l /data/db/enriched-cves-example.json
+docker exec -it mongodb find ./ -name enriched-cves-example.json
+
+
+
+
+# find specific file name in all ./
+# find ./ -name enriched-cves-latest.json

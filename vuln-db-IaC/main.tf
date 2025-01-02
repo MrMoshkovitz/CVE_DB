@@ -139,18 +139,19 @@ resource "google_compute_instance" "vm_instance" {
     docker rm $CONTAINER_ID
 
     # Run the MongoDB container
-    docker run -d \
-      --name mongodb \
-      -v $(pwd)/data/db:~/Code/CVE_DB/vuln-db-backend/data/db \
-      -p 27017:27017 \
-      mongo:latest
+    docker run -d --name mongodb -v $(pwd)/data/db:/data/db -p 27017:27017 mongo:latest    
 
+    docker exec mongodb ls -l /data/db/enriched-cves-latest.json
+  
     # Wait for MongoDB to initialize
     sleep 10
 
     # Import the JSON file into MongoDB
-    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/Code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
-
+    ls -l ~/Code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
+    docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file /data/db/enriched-cves-latest.json
+    # docker exec mongodb mongoimport --jsonArray --db vuln_db --collection cves --file ~/Code/CVE_DB/vuln-db-backend/data/db/enriched-cves-latest.json
+    
+    docker exec -it mongodb mongosh --eval "use vuln_db; db.cves.count();"
     # Activate the virtual environment
     source .venv/bin/activate
     
