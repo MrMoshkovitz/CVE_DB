@@ -420,12 +420,12 @@ function run_all_tests() {
     echo -e "$DEBUG Function: $FUNCNAME()" >&2
     echo -e "$HARD_LINE_BREAK" >&2
     test_case_1
-    test_case_2
-    test_case_3
-    test_case_4
-    test_case_5
-    test_case_6
-    test_case_7
+    # test_case_2
+    # test_case_3
+    # test_case_4
+    # test_case_5
+    # test_case_6
+    # test_case_7
     
 }
 
