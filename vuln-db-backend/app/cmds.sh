@@ -2,7 +2,8 @@
 # cd ~/Code/Private/CVE_DB/
 cd ~/Code/CVE_DB/vuln-db-backend
 git fetch origin && git reset --hard origin/master && git pull
-
+chmod +x ./app/test_update_cves.sh
+chmod +x ./app/update_cves.sh
 #* Testing Backend
 docker exec -it mongodb mongosh
 use vuln_db
