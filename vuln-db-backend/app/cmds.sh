@@ -1,4 +1,20 @@
 #? Repo Terminal 
+
+# TODO 1: Dockerize the backend
+# TODO 2: Dockerize the frontend
+# TODO 3: Deploy in the VM
+# TODO 4: Automate the Dockerization in the cron job
+# TODO 5: Store in the GCP Container Registry
+# TODO 6: Deploy from the GCP Container Registry
+# TODO 7: Automate the deployment in the cron job
+# TODO 8: Consider using Kubernetes or Cloud Run and MongoDB Cloud Version
+# TODO 9: Add Serverless Function to get CVE Data from NVD
+# TODO 10: Add Serverless Function to enrich CVE Data (ChatGPT)
+# TODO 11: Add Script Function to get the cve fix commits from the GitHub API
+# TODO 12: Compare the the file diffs between the commits and the cve fix
+# TODO 13: Enrhic CVE Data with the commit diffs and the cve fix data from ChatGPT
+# TODO 14: Add the enriched cve data to the bucket and check for automation process of getting the enriched cve data to the backend and to the container and to the frontend
+
 # cd ~/Code/Private/CVE_DB/
 cd ~/Code/CVE_DB/vuln-db-backend
 git fetch origin && git reset --hard origin/master && git pull
@@ -37,6 +53,14 @@ tmux attach -t backend
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m app.main
+tmux detach
+
+#* Frontend Terminal
+cd ~/Code/CVE_DB/vuln-db-frontend
+tmux new-session -d -s frontend
+tmux attach -t frontend
+npm install
+npm run dev
 tmux detach
 
 
