@@ -9,11 +9,12 @@ docker exec -it mongodb mongosh
 use vuln_db
 db.cves.count()
 
-
-curl http://localhost:8000 # 200 - Result OK
-curl http://localhost:8000/health # 200 - Result OK
-curl http://localhost:8000/cves # 200 - Result Not good - Empty
-curl http://localhost:8000/cves/ # 200 - Result Not good - Empty
+curl http://localhost:8000 #* SUCCESS 200 - Result OK
+curl http://localhost:8000/health #* SUCCESS 200 - Result OK
+curl http://localhost:8000/cves #* SUCCESS 200 - Result OK
+curl http://localhost:8000/cves/ #* SUCCESS 200 - Result OK
+curl http://localhost:8000/cves/?cve=CVE-2024-123456 #* SUCCESS 200 - Result OK
+curl http://localhost:8000/cves/?cve=cve-2024-123456 #* SUCCESS 200 - Result OK
 
 
 
