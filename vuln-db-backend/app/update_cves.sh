@@ -1,6 +1,7 @@
 # sudo docker ps -a --filter "name=mongodb" --format "{{.Status}}"
 # sudo docker ps --filter "name=mongodb" --filter "status=running"
 
+mock_example_json=
 
 
 #!/bin/bash
@@ -207,6 +208,7 @@ function handle_mongodb_container() {
         echo -e "$SUCCESS $GREEN Docker deamon started$NORMAL"
     fi
 }
+
 
 function main() {
     echo -e "$DEBUG Function: $FUNCNAME()" >&2
