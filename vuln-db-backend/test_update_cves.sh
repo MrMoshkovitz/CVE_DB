@@ -223,7 +223,6 @@ function setup_test_files() {
 
 #* Test Cases
 #? ================================================
-function test_case_1_no__files_exist()
 function test_case_1() {
     """
     Test Case 1: No Files exist At All - should use example file.
